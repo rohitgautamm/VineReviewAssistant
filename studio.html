@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VinePilot AI — Smart Vine Review & Phone Photo Studio</title>
+  <link rel="stylesheet" href="studio.css" />
+</head>
+<body>
+  <div class="app-container">
+    <!-- Top Header -->
+    <header class="top-header">
+      <div class="brand-group">
+        <div class="brand-logo">✨</div>
+        <div>
+          <h1 class="brand-title">VinePilot AI <span class="version-pill">v1.0</span></h1>
+          <p class="brand-subtitle">Human Tone Engine · 100% Amazon Guideline Shield · Direct Phone Photo Bridge · Batch Prefill</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button type="button" id="clear-all-review-btn" class="btn btn-secondary" title="Clear current product, photos & draft to start next review">
+          🧹 New Review
+        </button>
+        <button type="button" id="toggle-voice-dna-btn" class="btn btn-secondary" title="Train your personal writing tone & rules">
+          🧬 My Voice DNA
+        </button>
+        <button type="button" id="toggle-guidelines-btn" class="btn btn-secondary" title="View Amazon Vine Community Guidelines Checklist">
+          🛡️ Guidelines Rules
+        </button>
+        <button type="button" id="toggle-settings-btn" class="btn btn-secondary" title="Configure Gemini / OpenAI / Claude API Keys">
+          ⚙️ AI Settings
+        </button>
+        <button type="button" id="close-embedded-btn" class="btn btn-icon hidden" title="Close">✕</button>
+      </div>
+    </header>
+
+    <!-- Collapsible Settings Panel -->
+    <section id="settings-panel" class="collapsible-panel hidden">
+      <div class="panel-header">
+        <h2>⚙️ AI Engine & API Configuration</h2>
+        <button type="button" class="btn-close-panel" data-target="settings-panel">✕</button>
+      </div>
+      <p class="panel-note">Choose your AI engine for one-click review generation & multimodal photo inspection. Even without an API key, VinePilot's Built-in Human Synthesizer & External AI Handoff work out of the box!</p>
+
+      <div class="form-grid-2">
+        <div>
+          <label class="field-label">Active AI Provider</label>
+          <select id="setting-provider" class="input-field">
+            <option value="gemini">Google Gemini API (Recommended — Multimodal Photo Vision)</option>
+            <option value="openai">OpenAI (GPT-4o / GPT-4o-mini)</option>
+            <option value="anthropic">Anthropic Claude (Claude 3.7 Sonnet)</option>
+            <option value="local">Built-in Offline Human Synthesizer (No API Key Needed)</option>
+          </select>
+        </div>
+
+        <div id="gemini-model-group">
+          <label class="field-label">Gemini Model</label>
+          <select id="setting-gemini-model" class="input-field">
+            <option value="gemini-3.8-flash">gemini-3.8-flash (Fast, Multimodal Vision & Text)</option>
+            <option value="gemini-4-argon">gemini-4-argon (Most Powerful Deep Nuance & Voice Matching)</option>
+            <option value="gemini-3.5-flash-lite">gemini-3.5-flash-lite (Ultra-Fast Lightweight)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-grid-3 mt-10">
+        <div>
+          <label class="field-label">Google Gemini API Key</label>
+          <input type="password" id="setting-gemini-key" class="input-field" placeholder="AIzaSy..." />
+        </div>
+        <div>
+          <label class="field-label">OpenAI API Key (Optional)</label>
+          <input type="password" id="setting-openai-key" class="input-field" placeholder="sk-..." />
+        </div>
+        <div>
+          <label class="field-label">Anthropic API Key (Optional)</label>
+          <input type="password" id="setting-anthropic-key" class="input-field" placeholder="sk-ant-..." />
+        </div>
+      </div>
+
+      <div class="panel-footer">
+        <button type="button" id="save-settings-btn" class="btn btn-primary">💾 Save AI Settings</button>
+        <span id="settings-saved-msg" class="save-badge hidden">✓ Saved!</span>
+      </div>
+    </section>
+
+    <!-- Collapsible Personal Voice DNA Panel -->
+    <section id="voice-dna-panel" class="collapsible-panel hidden">
+      <div class="panel-header">
+        <h2>🧬 My Personal Voice DNA & Custom Instructions</h2>
+        <button type="button" class="btn-close-panel" data-target="voice-dna-panel">✕</button>
+      </div>
+      <p class="panel-note">Train VinePilot AI so every review sounds unmistakably like YOU — a real human who tested the product, never a generic AI.</p>
+
+      <div class="form-grid-2">
+        <div>
+          <label class="field-label">About Me / My Reviewer Persona</label>
+          <input type="text" id="voice-persona-bio" class="input-field" placeholder="e.g. Hands-on home cook & tech tinkerer; I care about build quality, real dimensions, and zero fluff." />
+        </div>
+        <div>
+          <label class="field-label">Permanent Rules for Every Review</label>
+          <input type="text" id="voice-custom-rules" class="input-field" placeholder="e.g. Never use exclamation marks in headlines; always mention setup time and whether I'd buy it again." />
+        </div>
+      </div>
+
+      <div class="mt-10">
+        <label class="field-label">Paste 1 to 3 of Your Own Approved Reviews (Voice Cloning Samples — separate with ---)</label>
+        <textarea id="voice-samples-input" rows="4" class="input-field" placeholder="Paste a couple of your real past Amazon reviews here. VinePilot analyzes your sentence length, rhythm, and phrasing so generated reviews match your personal style!"></textarea>
+      </div>
+
+      <div id="voice-dna-summary" class="dna-summary-box"></div>
+
+      <div class="panel-footer">
+        <button type="button" id="save-voice-dna-btn" class="btn btn-primary">🧬 Save Voice DNA Profile</button>
+        <span id="voice-saved-msg" class="save-badge hidden">✓ Voice Profile Saved!</span>
+      </div>
+    </section>
+
+    <!-- Collapsible Community Guidelines Reference Panel -->
+    <section id="guidelines-ref-panel" class="collapsible-panel hidden">
+      <div class="panel-header">
+        <h2>🛡️ Amazon Vine Community Guidelines Protection Rules</h2>
+        <button type="button" class="btn-close-panel" data-target="guidelines-ref-panel">✕</button>
+      </div>
+      <div class="guidelines-grid">
+        <div class="guideline-item">
+          <strong>🚫 1. No Medical or Cure Claims</strong>
+          <p>Never state a product cures, heals, treats, or prevents medical conditions (pain, insomnia, eczema, anxiety, arthritis, inflammation). Use subjective comfort phrasing instead.</p>
+        </div>
+        <div class="guideline-item">
+          <strong>📦 2. No Shipping, Seller or Delivery Complaints</strong>
+          <p>Do not mention delivery speed, Prime drivers, outer Amazon shipping boxes/bubble mailers, or seller customer service. Review only the product itself.</p>
+        </div>
+        <div class="guideline-item">
+          <strong>🏷️ 3. No Vine / Free Product / ETV Mentions</strong>
+          <p>Amazon automatically adds the "Vine Customer Review of Free Product" badge. Mentioning "got this free" or "ETV" inside the text can trigger moderation filters.</p>
+        </div>
+        <div class="guideline-item">
+          <strong>🏪 4. No Competing Stores, Links or Counterfeit Claims</strong>
+          <p>Avoid naming Walmart, Temu, AliExpress, Target, or eBay, including URLs, or calling an item "counterfeit/scam". Describe physical materials objectively.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 1: Product Context -->
+    <section class="card">
+      <div class="card-header">
+        <h2 class="card-title">1. Product Details</h2>
+        <div class="segmented-tabs">
+          <button type="button" id="tab-product-manual" class="seg-btn active">Enter / Auto-Fetch</button>
+          <button type="button" id="tab-product-pending" class="seg-btn">Pick from Pending (<span id="pending-count">0</span>)</button>
+        </div>
+      </div>
+
+      <!-- Pending Picker List -->
+      <div id="pending-picker-box" class="pending-picker hidden">
+        <input type="text" id="pending-search-input" class="input-field mb-8" placeholder="Search your synced pending Vine reviews by title or ASIN…" />
+        <ul id="pending-list" class="pending-list"></ul>
+      </div>
+
+      <div class="product-row">
+        <img id="product-thumb" src="" alt="" class="product-thumb hidden" />
+        <div class="product-fields">
+          <div class="asin-fetch-row">
+            <select id="product-marketplace" class="input-field" style="width:140px;" title="Amazon Marketplace">
+              <option value="https://www.amazon.in">🇮🇳 amazon.in</option>
+              <option value="https://www.amazon.com">🇺🇸 amazon.com</option>
+              <option value="https://www.amazon.co.uk">🇬🇧 amazon.co.uk</option>
+              <option value="https://www.amazon.ca">🇨🇦 amazon.ca</option>
+              <option value="https://www.amazon.de">🇩🇪 amazon.de</option>
+              <option value="https://www.amazon.fr">🇫🇷 amazon.fr</option>
+              <option value="https://www.amazon.es">🇪🇸 amazon.es</option>
+              <option value="https://www.amazon.it">🇮🇹 amazon.it</option>
+              <option value="https://www.amazon.co.jp">🇯🇵 amazon.co.jp</option>
+              <option value="https://www.amazon.com.au">🇦🇺 amazon.com.au</option>
+            </select>
+            <input type="text" id="product-asin" class="input-field asin-input" style="width:210px;" placeholder="ASIN (B0...) or paste Amazon URL" />
+            <button type="button" id="fetch-pdp-btn" class="btn btn-secondary">🔍 Auto-Fetch Listing</button>
+            <button type="button" id="open-amazon-form-btn" class="btn btn-ghost">↗ Open Amazon Review Form</button>
+          </div>
+          <input type="text" id="product-title" class="input-field" placeholder="Product title (auto-filled from ASIN or paste here)" />
+          <textarea id="product-description" rows="2" class="input-field" placeholder="Listing bullet points or description (optional — helps AI verify claims & details)"></textarea>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 2: Your Hands-On Experience & Bullet Points -->
+    <section class="card">
+      <div class="card-header">
+        <div>
+          <h2 class="card-title">2. Your Hands-On Experience & Bullet Points</h2>
+          <p class="card-sub">Jot quick bullet points or tap <strong>🎙️ Voice Dictation</strong> to speak naturally about your experience.</p>
+        </div>
+        <select id="voice-lang-btn" class="btn btn-ghost-sm" title="Dictation language"><option value="en-IN">English</option><option value="hi-IN">हिंदी</option><option value="mr-IN">मराठी</option><option value="pa-IN">ਪੰਜਾਬੀ</option><option value="ml-IN">മലയാളം</option><option value="kn-IN">ಕನ್ನಡ</option><option value="te-IN">తెలుగు</option><option value="ta-IN">தமிழ்</option></select>
+        <button type="button" id="voice-dictate-btn" class="btn btn-voice">
+          <span id="voice-mic-icon">🎙️</span>
+          <span id="voice-dictate-label">Dictate Experience</span>
+        </button>
+      </div>
+
+      <!-- Star Rating + Quick Experience Chips -->
+      <div class="rating-chips-bar">
+        <div class="star-picker-wrap">
+          <span class="field-label">Star Rating <span class="req">*</span></span>
+          <div class="stars-group" id="stars-group">
+            <button type="button" class="star-icon-btn" data-rating="1" aria-label="1 star">★</button>
+            <button type="button" class="star-icon-btn" data-rating="2" aria-label="2 stars">★</button>
+            <button type="button" class="star-icon-btn" data-rating="3" aria-label="3 stars">★</button>
+            <button type="button" class="star-icon-btn" data-rating="4" aria-label="4 stars">★</button>
+            <button type="button" class="star-icon-btn" data-rating="5" aria-label="5 stars">★</button>
+            <span id="rating-text" class="rating-label">5 of 5 stars</span>
+          </div>
+        </div>
+
+        <div class="quick-chips-wrap">
+          <span class="field-label">Quick Experience Prompts (Tap to add):</span>
+          <div class="chips-row">
+            <button type="button" class="chip-btn" data-target="exp-liked" data-text="Build quality feels sturdy and well-finished in hand">+ Solid build</button>
+            <button type="button" class="chip-btn" data-target="exp-liked" data-text="Setup took less than 2 minutes right out of the box">+ Easy setup</button>
+            <button type="button" class="chip-btn" data-target="exp-liked" data-text="Dimensions and fit match the listing photos accurately">+ True to size</button>
+            <button type="button" class="chip-btn" data-target="exp-liked" data-text="Fair value for the current listing price">+ Good value</button>
+            <button type="button" class="chip-btn" data-target="exp-disliked" data-text="Included instructions are very brief">+ Brief manual</button>
+            <button type="button" class="chip-btn" data-target="exp-usage" data-text="Used daily for the past two weeks">+ Used 2 weeks</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-grid-2 mt-10">
+        <div>
+          <label class="field-label" for="exp-liked">What you liked (Pros / Bullet points)</label>
+          <textarea id="exp-liked" rows="3" class="input-field" placeholder="• Heavy stainless steel base&#10;• Fits snugly without wobbling&#10;• Easy to wipe clean"></textarea>
+        </div>
+        <div>
+          <label class="field-label" for="exp-disliked">What you disliked (Cons / Nitpicks / Caveats)</label>
+          <textarea id="exp-disliked" rows="3" class="input-field" placeholder="• Power cord is a bit short (~3ft)&#10;• Lid takes a firm push to lock"></textarea>
+        </div>
+      </div>
+
+      <div class="form-grid-2 mt-10">
+        <div>
+          <label class="field-label" for="exp-usage">How / why you used it (Lived-in story context)</label>
+          <input type="text" id="exp-usage" class="input-field" placeholder="e.g. Needed a compact travel charger for my work backpack" />
+        </div>
+        <div>
+          <label class="field-label" for="exp-notes">Extra notes, measurements, or comparisons</label>
+          <input type="text" id="exp-notes" class="input-field" placeholder="e.g. Weighs 280g on my kitchen scale; quieter than my old unit" />
+        </div>
+      </div>
+
+      <!-- Recommend, Tone, Length, Use Voice Profile -->
+      <div class="controls-bar mt-12">
+        <div>
+          <label class="field-label">Would you recommend it?</label>
+          <div class="segmented-tabs">
+            <button type="button" class="seg-btn rec-btn active" data-rec="true">👍 Yes</button>
+            <button type="button" class="seg-btn rec-btn" data-rec="false">👎 No</button>
+            <button type="button" class="seg-btn rec-btn" data-rec="null">🤔 Unsure</button>
+          </div>
+        </div>
+
+        <div>
+          <label class="field-label" for="exp-tone">AI Mode / Tone Style</label>
+          <select id="exp-tone" class="input-field">
+            <option value="speech_cleanup" selected>🎙️ Speech-to-Text Cleanup Only (Fix Spelling & Context — Add Nothing)</option>
+            <option value="balanced">Balanced & Honest</option>
+            <option value="casual_human">Casual Lived-In Storyteller</option>
+            <option value="hands_on_tester">Hands-On Gear / Detail Tester</option>
+            <option value="enthusiastic">Warm & Enthusiastic</option>
+            <option value="critical">Direct & Critical</option>
+            <option value="concise">Short & Punchy</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="field-label" for="exp-length">Review Length</label>
+          <select id="exp-length" class="input-field">
+            <option value="short">Short (60–100 words)</option>
+            <option value="medium" selected>Medium (110–180 words)</option>
+            <option value="long">Detailed (200–300 words)</option>
+          </select>
+        </div>
+
+        <label class="toggle-switch-label" title="Applies your Voice DNA samples & custom instructions">
+          <input type="checkbox" id="use-voice-profile" checked />
+          <span>🧬 Write in My Voice DNA</span>
+        </label>
+      </div>
+    </section>
+
+    <!-- Section 3: Photos, Batch Upload & Direct Phone-to-Laptop QR Bridge -->
+    <section class="card">
+      <div class="card-header">
+        <div>
+          <h2 class="card-title">3. Photos & Direct Phone Upload (<span id="photo-count-badge">0/10</span>)</h2>
+          <p class="card-sub">HEIC/HEIF/WebP auto-convert to EXIF-scrubbed JPEGs. All photos upload together when you prefill Amazon!</p>
+        </div>
+        <div class="photo-header-actions">
+          <button type="button" id="open-phone-qr-btn" class="btn btn-phone-bridge">
+            📱 Upload from Phone (QR Bridge)
+          </button>
+          <button type="button" id="clear-all-photos-btn" class="btn btn-secondary hidden">
+            🗑️ Clear Photos
+          </button>
+          <button type="button" id="download-all-photos-btn" class="btn btn-secondary hidden">
+            ⬇️ Download All JPEGs
+          </button>
+        </div>
+      </div>
+
+      <!-- Direct Phone-to-Laptop QR Code Bridge Drawer -->
+      <div id="phone-qr-drawer" class="phone-qr-drawer hidden">
+        <div class="qr-drawer-grid">
+          <div class="qr-box-wrap">
+            <img id="phone-qr-img" src="" alt="Scan QR Code with Phone" class="qr-code-img" />
+            <span id="qr-status-pill" class="qr-status-pill">Checking bridge…</span>
+          </div>
+          <div class="qr-instructions">
+            <h3>📱 Zero-Grind Phone-to-Laptop Photo & Voice Bridge</h3>
+            <p id="qr-mode-desc">Scan this QR code with your phone camera to take product photos or batch-select from your phone gallery. Photos appear right below in real time!</p>
+            <div class="qr-url-row">
+              <input type="text" id="phone-bridge-url" class="input-field" readonly />
+              <button type="button" id="copy-bridge-url-btn" class="btn btn-secondary">Copy Link</button>
+              <button type="button" id="refresh-bridge-btn" class="btn btn-secondary">🔄 Re-check Local Wi-Fi Bridge</button>
+            </div>
+            <div class="qr-help-tip">
+              💡 <strong>Tip:</strong> For fastest LAN speed on the same Wi-Fi, double-click <code>start-phone-bridge.bat</code> (or run <code>node phone-bridge/server.js</code>) in your extension folder. Or use our <strong>Instant Cloud Relay Mode</strong> below with zero setup!
+              <div class="mt-6">
+                <button type="button" id="switch-cloud-relay-btn" class="btn btn-ghost-sm">☁️ Switch between Local Wi-Fi & Instant Cloud Relay</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Drag & Drop Zone -->
+      <div id="photo-dropzone" class="photo-dropzone">
+        <div class="dropzone-icon">📷</div>
+        <div class="dropzone-title">Drop product photos here, click to browse, or paste (Ctrl+V) from clipboard</div>
+        <div class="dropzone-sub">Supports JPEG, PNG, WebP, iPhone HEIC/HEIF · Automatically strips GPS EXIF data · Drag tiles to reorder</div>
+        <input type="file" id="photo-file-input" accept="image/*,.heic,.heif" multiple class="hidden" />
+        <input type="file" id="photo-camera-input" accept="image/*" capture="environment" class="hidden" />
+        <div style="margin-top:10px"><button type="button" id="photo-camera-btn" class="btn btn-voice">📸 Take Photo with Camera</button></div>
+      </div>
+
+      <!-- Converted Photo Thumbnails Grid -->
+      <div id="photo-grid" class="photo-grid hidden"></div>
+    </section>
+
+    <!-- Action Bar: Generate with AI OR Use External AI -->
+    <div class="generate-action-bar">
+      <button type="button" id="generate-review-btn" class="btn btn-generate">
+        <span id="generate-btn-icon">✨</span>
+        <span id="generate-btn-text">Fix Speech-to-Text (Spelling & Context Only — Add Nothing)</span>
+      </button>
+
+      <div class="external-ai-group">
+        <span class="ext-label">Or use external AI chat:</span>
+        <button type="button" id="copy-ext-prompt-btn" class="btn btn-secondary" title="Copies formatted prompt with your Voice DNA & bullet points">
+          📋 Copy Prompt
+        </button>
+        <button type="button" id="copy-contact-sheet-btn" class="btn btn-secondary hidden" title="Copies all photos combined into one numbered contact sheet PNG">
+          🖼️ Copy Photos Sheet
+        </button>
+        <button type="button" class="btn btn-ext-ai" data-ai="chatgpt">ChatGPT ↗</button>
+        <button type="button" class="btn btn-ext-ai" data-ai="claude">Claude ↗</button>
+        <button type="button" class="btn btn-ext-ai" data-ai="gemini">Gemini ↗</button>
+      </div>
+    </div>
+
+    <div id="generate-error-box" class="error-banner hidden"></div>
+
+    <!-- Section 4: Review Draft Editor + Live Community Guideline & Authenticity Shield -->
+    <section id="result-section" class="card result-card">
+      <div class="card-header">
+        <div>
+          <h2 class="card-title">4. Review Draft & Community Guideline Shield</h2>
+          <p class="card-sub">Edit freely or paste an external AI reply (first line automatically splits into the headline).</p>
+        </div>
+        <div class="score-badges" id="live-score-badges">
+          <span class="score-pill score-safe" id="badge-guideline">🛡️ Guidelines: 100% Safe</span>
+          <span class="score-pill score-human" id="badge-human">🧬 Human Voice: --</span>
+          <span class="score-pill score-insight" id="badge-insight">📊 Insightfulness: --</span>
+        </div>
+      </div>
+
+      <!-- Live Guideline & AI Cliché Audit Box -->
+      <div id="guideline-alerts-box" class="guideline-alerts-box hidden"></div>
+
+      <div class="draft-editor-fields">
+        <div class="field-top-row">
+          <label class="field-label" for="draft-title">Review Headline</label>
+          <button type="button" id="copy-title-btn" class="btn-text-link">Copy Headline</button>
+        </div>
+        <input type="text" id="draft-title" class="input-field headline-input" placeholder="Short, human review headline…" />
+
+        <div class="field-top-row mt-10">
+          <label class="field-label" for="draft-body">Review Body (<span id="draft-word-count">0 words</span>)</label>
+          <div class="editor-quick-links">
+            <button type="button" id="autofix-draft-btn" class="btn-text-link text-amber">🛡️ Scrub AI Clichés & Guideline Risks</button>
+            <button type="button" id="copy-body-btn" class="btn-text-link">Copy Review</button>
+          </div>
+        </div>
+        <textarea id="draft-body" rows="9" class="input-field body-textarea" placeholder="Your generated review will appear here, or type/paste your draft to run the live Amazon Community Guidelines & Human Authenticity check…"></textarea>
+      </div>
+
+      <!-- Strengths & Constructive Suggestions -->
+      <div id="quality-feedback-box" class="quality-feedback-box hidden"></div>
+
+      <!-- Final Prefill on Amazon Action Bar -->
+      <div class="prefill-footer-bar">
+        <button type="button" id="prefill-amazon-btn" class="btn btn-prefill-amazon">
+          🚀 Prefill on Amazon + Attach All Photos Together →
+        </button>
+        <button type="button" id="copy-both-btn" class="btn btn-secondary">
+          📋 Copy Headline + Review
+        </button>
+        <span id="prefill-status-msg" class="prefill-hint">Opens Amazon's review page with Star Rating, Headline, Review, and all JPEG Photos pre-attached. You click Submit!</span>
+      </div>
+    </section>
+  </div>
+
+  <script src="js/guidelines-engine.js"></script>
+  <script src="js/voice-dna.js"></script>
+  <script src="js/media-processor.js"></script>
+  <script src="js/qrcode.js"></script>
+  <script src="studio.js"></script>
+</body>
+</html>

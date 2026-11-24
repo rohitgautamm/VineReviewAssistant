@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>VinePilot AI — Mobile Photo & Review Companion</title>
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --card: #151c2c;
+      --border: rgba(129, 140, 248, 0.25);
+      --primary: #6366f1;
+      --primary-hover: #4f46e5;
+      --emerald: #10b981;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body {
+      margin: 0;
+      padding: 16px 16px 40px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.45;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 16.5px;
+    }
+    .badge {
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      color: #6ee7b7;
+      font-size: 11.5px;
+      font-weight: 600;
+    }
+    .active-product-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 14px;
+      margin-bottom: 14px;
+      border-radius: 12px;
+      background: rgba(99, 102, 241, 0.14);
+      border: 1px solid rgba(99, 102, 241, 0.35);
+      font-size: 12.5px;
+      color: #e0e7ff;
+    }
+    .reset-next-btn {
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+      font-size: 11.5px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 14px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    }
+    .card-title {
+      font-size: 14px;
+      font-weight: 700;
+      margin: 0 0 6px 0;
+      color: #e0e7ff;
+    }
+    .card-sub {
+      font-size: 12px;
+      color: var(--muted);
+      margin: 0 0 14px 0;
+    }
+    .btn-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .big-upload-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 18px 12px;
+      border-radius: 14px;
+      border: 2px dashed rgba(99, 102, 241, 0.55);
+      background: rgba(99, 102, 241, 0.1);
+      color: #fff;
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+    }
+    .big-upload-btn:active {
+      transform: scale(0.98);
+      background: rgba(99, 102, 241, 0.22);
+    }
+    .big-upload-btn .icon {
+      font-size: 28px;
+    }
+    .thumb-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .thumb-item {
+      position: relative;
+      aspect-ratio: 1;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.15);
+      background: #0f172a;
+    }
+    .thumb-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .thumb-status {
+      position: absolute;
+      bottom: 4px;
+      right: 4px;
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-size: 10px;
+      font-weight: 700;
+      background: rgba(16, 185, 129, 0.9);
+      color: #fff;
+    }
+    .stars-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .star-btn {
+      font-size: 28px;
+      background: none;
+      border: 0;
+      padding: 2px;
+      cursor: pointer;
+      color: #475569;
+    }
+    .star-btn.active {
+      color: #fbbf24;
+    }
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: #cbd5e1;
+      margin: 10px 0 4px;
+    }
+    textarea, input[type="text"] {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.15);
+      background: #0f172a;
+      color: #fff;
+      font-size: 14px;
+      font-family: inherit;
+    }
+    .send-notes-btn {
+      width: 100%;
+      margin-top: 12px;
+      padding: 13px;
+      border-radius: 12px;
+      border: 0;
+      background: linear-gradient(135deg, #4f46e5, #6366f1);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .status-toast {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: rgba(16, 185, 129, 0.16);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      color: #6ee7b7;
+      font-size: 12.5px;
+      font-weight: 600;
+      display: none;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="brand">
+      <span>📱 VinePilot Phone Bridge</span>
+    </div>
+    <span class="badge" id="conn-badge">● Paired with Laptop</span>
+  </div>
+
+  <div class="active-product-banner">
+    <div id="active-product-label" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+      🎯 Keep this page open — works across all your reviews!
+    </div>
+    <button type="button" id="reset-next-btn" class="reset-next-btn">🧹 Clear for Next Review</button>
+  </div>
+
+  <!-- Instant Camera & Multi-Photo Batch Uploader -->
+  <div class="card">
+    <h2 class="card-title">1. Instant Phone-to-Laptop Photo Upload</h2>
+    <p class="card-sub">Snap product photos or select multiple photos at once. They auto-convert to EXIF-scrubbed JPEGs and appear immediately in your active laptop Studio tab!</p>
+
+    <div class="btn-grid">
+      <label class="big-upload-btn">
+        <span class="icon">📸</span>
+        <span>Take Camera Photo</span>
+        <input type="file" id="camera-input" accept="image/*" capture="environment" style="display:none" />
+      </label>
+
+      <label class="big-upload-btn">
+        <span class="icon">🖼️</span>
+        <span>Upload Multiple Photos</span>
+        <input type="file" id="gallery-input" accept="image/*,.heic,.heif" multiple style="display:none" />
+      </label>
+    </div>
+
+    <div id="upload-progress" class="status-toast"></div>
+    <div id="thumb-grid" class="thumb-grid"></div>
+  </div>
+
+  <!-- Optional Hands-On Notes & Voice Dictation from Phone -->
+  <div class="card">
+    <h2 class="card-title">2. Quick Hands-On Bullet Points (Optional)</h2>
+    <p class="card-sub">Jot or dictate using your phone keyboard's 🎙️ microphone while holding the product:</p>
+
+    <label>Star Rating</label>
+    <div class="stars-row" id="stars-row">
+      <button type="button" class="star-btn active" data-val="1">★</button>
+      <button type="button" class="star-btn active" data-val="2">★</button>
+      <button type="button" class="star-btn active" data-val="3">★</button>
+      <button type="button" class="star-btn active" data-val="4">★</button>
+      <button type="button" class="star-btn active" data-val="5">★</button>
+    </div>
+
+    <label>What I Liked (Bullet Points / Voice Dictation)</label>
+    <textarea id="liked-input" rows="3" placeholder="e.g. Heavy stainless steel feel, fits 58mm portafilter snugly, super easy to clean..."></textarea>
+
+    <label>What I Disliked / Any Nitpicks</label>
+    <textarea id="disliked-input" rows="2" placeholder="e.g. Cord is a little short (about 3ft)..."></textarea>
+
+    <label>How / Where I Used It</label>
+    <input type="text" id="usage-input" placeholder="e.g. Tested on my kitchen counter for a week" />
+
+    <button type="button" class="send-notes-btn" id="send-notes-btn">
+      🚀 Sync Bullet Points to Laptop Studio
+    </button>
+    <div id="notes-toast" class="status-toast"></div>
+  </div>
+
+  <script>
+    let selectedRating = 5;
+
+    // Star rating UI
+    const starBtns = document.querySelectorAll('.star-btn');
+    starBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        selectedRating = Number(btn.dataset.val);
+        starBtns.forEach(b => b.classList.toggle('active', Number(b.dataset.val) <= selectedRating));
+      });
+    });
+
+    function showToast(elId, msg) {
+      const el = document.getElementById(elId);
+      if (!el) return;
+      el.textContent = msg;
+      el.style.display = 'block';
+    }
+
+    // Clear phone screen for next review
+    document.getElementById('reset-next-btn').addEventListener('click', () => {
+      document.getElementById('thumb-grid').innerHTML = '';
+      document.getElementById('liked-input').value = '';
+      document.getElementById('disliked-input').value = '';
+      document.getElementById('usage-input').value = '';
+      document.getElementById('upload-progress').style.display = 'none';
+      document.getElementById('notes-toast').style.display = 'none';
+    });
+
+    // Periodically check active product on laptop so phone header stays in sync
+    setInterval(async () => {
+      try {
+        const r = await fetch('/api/info');
+        const info = await r.json();
+        if (info?.activeProduct?.title || info?.activeProduct?.asin) {
+          const label = info.activeProduct.title || info.activeProduct.asin;
+          document.getElementById('active-product-label').textContent = '💻 Reviewing: ' + label;
+        }
+      } catch { /* ignore */ }
+    }, 3500);
+
+    // Compress and convert image to clean JPEG on phone before beaming to laptop
+    async function compressFileToJpeg(file, maxDim = 1800, quality = 0.88) {
+      const name = (file.name || 'phone-photo').replace(/\.[^.]+$/, '') + '.jpg';
+      const dataUrl = await new Promise((resolve, reject) => {
+        const r = new FileReader();
+        r.onload = () => resolve(r.result);
+        r.onerror = () => reject(r.error);
+        r.readAsDataURL(file);
+      });
+
+      const img = await new Promise((resolve, reject) => {
+        const el = new Image();
+        el.onload = () => resolve(el);
+        el.onerror = () => reject(new Error('Image load failed'));
+        el.src = dataUrl;
+      }).catch(() => null);
+
+      if (!img) {
+        const idx = String(dataUrl).indexOf(',');
+        return {
+          name,
+          mime: 'image/jpeg',
+          data: idx >= 0 ? dataUrl.slice(idx + 1) : dataUrl,
+          dataUrl
+        };
+      }
+
+      const scale = Math.min(1, maxDim / Math.max(img.naturalWidth || 1000, img.naturalHeight || 1000));
+      const w = Math.max(1, Math.round((img.naturalWidth || 1000) * scale));
+      const h = Math.max(1, Math.round((img.naturalHeight || 1000) * scale));
+      const canvas = document.createElement('canvas');
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, w, h);
+      ctx.drawImage(img, 0, 0, w, h);
+
+      const jpegUrl = canvas.toDataURL('image/jpeg', quality);
+      const comma = jpegUrl.indexOf(',');
+      return {
+        name,
+        mime: 'image/jpeg',
+        data: comma >= 0 ? jpegUrl.slice(comma + 1) : jpegUrl,
+        dataUrl: jpegUrl,
+        width: w,
+        height: h
+      };
+    }
+
+    async function handleFiles(fileList) {
+      const files = Array.from(fileList || []);
+      if (!files.length) return;
+      showToast('upload-progress', `Processing & beaming ${files.length} photo(s) to laptop…`);
+
+      const grid = document.getElementById('thumb-grid');
+      const convertedBatch = [];
+
+      for (const f of files) {
+        try {
+          const item = await compressFileToJpeg(f);
+          convertedBatch.push({
+            name: item.name,
+            mime: item.mime,
+            data: item.data,
+            width: item.width,
+            height: item.height
+          });
+
+          const div = document.createElement('div');
+          div.className = 'thumb-item';
+          div.innerHTML = `<img src="${item.dataUrl}" alt="" /><span class="thumb-status">Sent ✓</span>`;
+          grid.appendChild(div);
+        } catch (err) {
+          console.error(err);
+        }
+      }
+
+      if (convertedBatch.length > 0) {
+        try {
+          const res = await fetch(`/api/upload`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ images: convertedBatch })
+          });
+          const data = await res.json();
+          if (data.ok) {
+            showToast('upload-progress', `✓ Sent ${convertedBatch.length} photo(s) directly to your laptop!`);
+          } else {
+            showToast('upload-progress', `⚠️ Upload error: ${data.error || 'Unknown'}`);
+          }
+        } catch (e) {
+          showToast('upload-progress', `⚠️ Could not reach laptop bridge: ${e.message}`);
+        }
+      }
+    }
+
+    document.getElementById('camera-input').addEventListener('change', (e) => {
+      handleFiles(e.target.files);
+      e.target.value = '';
+    });
+
+    document.getElementById('gallery-input').addEventListener('change', (e) => {
+      handleFiles(e.target.files);
+      e.target.value = '';
+    });
+
+    document.getElementById('send-notes-btn').addEventListener('click', async () => {
+      const payload = {
+        rating: selectedRating,
+        liked: document.getElementById('liked-input').value.trim(),
+        disliked: document.getElementById('disliked-input').value.trim(),
+        usage: document.getElementById('usage-input').value.trim()
+      };
+      try {
+        const res = await fetch(`/api/upload`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ notes: payload })
+        });
+        const data = await res.json();
+        if (data.ok) {
+          showToast('notes-toast', '✓ Synced rating & bullet points to laptop Studio!');
+        }
+      } catch (e) {
+        showToast('notes-toast', '⚠️ Failed to sync notes: ' + e.message);
+      }
+    });
+  </script>
+</body>
+</html>
